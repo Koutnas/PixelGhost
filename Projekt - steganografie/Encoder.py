@@ -72,37 +72,34 @@ class steganographic_encoder():
         else:
             return True
         
-    def encode(self,plaintext):
-        if self.png == None and self.png_path != None:
+    def encode(self,plaintext,hashFlag,identFlag):
+        if self.png_path != None and np.any(self.png) == False:
             self.open_img()
-        else: return
+        
+        if hashFlag:
+            hash = self.integrity_insurance(plaintext)
+            bitstr = self.str_into_bitstr(plaintext)
+            bitstr = self.add_header(bitstr+hash+"01")
+        
+        elif hashFlag and identFlag:
 
-        hash = self.integrity_insurance(plaintext)
-        plaintext = self.str_into_bitstr(plaintext)
-        plaintext = self.add_header(plaintext+hash)
-        if self.safety_check(plaintext):
-            positions = self.pixel_shuffle(plaintext)
-            plaintext_slices = self.slice_text(plaintext)
+            pass #To be implemented
+        
+        else:
+            bitstr = self.str_into_bitstr(plaintext)
+            bitstr = self.add_header(bitstr+"00")
+
+        if self.safety_check(bitstr):
+            positions = self.pixel_shuffle(bitstr)
+            plaintext_slices = self.slice_text(bitstr)
 
             for i in range(len(plaintext_slices)):
-                print(i)
                 for j,bit in enumerate(plaintext_slices[i]):
                     self.png[positions[j//3,0],positions[j//3,1],j%3] = self.encode_bit(int(self.png[positions[j//3,0],positions[j//3,1],j%3]),bit,i)
-            #cv.imshow("test",self.png)
-            #cv.waitKey(0)
             return self.png
             
         
 
-enc = steganographic_encoder("heslo","low_res_test.png")
-
-string = ""
-for i in range(80):
-    string = string + "bpc-akr"
-x = enc.encode(string)
-#x = enc.encode("Well that sucks")
-cv.imwrite("decoding_test.png",x)
-#print(enc.encode_bit(255,0,0))
 
 
 

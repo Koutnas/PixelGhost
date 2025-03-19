@@ -8,9 +8,10 @@ class steganographic_decoder():
         self.png_path = png_path
         self.password = password
         self.decoded_text = ''
-        self.extracted_hash = ''
+        self.extracted_hash = None
         self.headerLenght = 32
         self.hashLenght = 256
+        self.flagLenght = 2
         self.png = png
     
     def open_img(self):
@@ -44,33 +45,41 @@ class steganographic_decoder():
     
     def get_plaintext(self):
         return self.decoded_text
+    
+    def getHash(self):
+        return self.extracted_hash,sha256(self.decoded_text.encode("UTF-8")).hexdigest()
 
     def bits_into_plaintext(self,bit_text):
-        byte_list = [bit_text[i:i+8] for i in range(0, len(bit_text), 8)] #https://www.geeksforgeeks.org/convert-binary-to-string-using-python/
+        byte_list = [bit_text[i:i+8] for i in range(0, len(bit_text), 8)]
         plaintext = ''.join(chr(int(char, 2)) for char in byte_list)
         self.decoded_text = plaintext
     
     def bin_to_hex_hash(self,bin_hash):
-        self.extracted_hash = hex(int(bin_hash,2))[2:]
+        if bin_hash is not None:
+            self.extracted_hash = hex(int(bin_hash,2))[2:]
 
     def separate_bitstr(self,plaintext):
+
+        flag = int(plaintext[-self.flagLenght:],2)
+        plaintext = plaintext[:-self.flagLenght]
         plaintext = plaintext[self.headerLenght:]
-        hash = plaintext[-self.hashLenght:]
-        plaintext = plaintext[:-self.hashLenght]
-        return plaintext,hash
+        match flag:
+            case 0:
+                return plaintext,None
+            case 1:
+                hash = plaintext[-self.hashLenght:]
+                plaintext = plaintext[:-self.hashLenght]
+                return plaintext,hash
+                
 
     def decode(self):
-        if self.png == None and self.png_path != None:
+        if self.png_path != None and np.any(self.png) == False:
             self.open_img()
-        else:
-            print("There was a problem with opening image")
-            return
         positions = self.pixel_order()
         header = ""
 
         for i in range(self.headerLenght):
             header = header + self.acces_bit(self.png[positions[i//3,0],positions[i//3,1],i%3],0) #extrakce headru
-        print(int(header,2))
 
         if int(header,2) <= self.png.size: #optimalizace v případě že je využito méně než celé rozlišení obrázku
             if int(header,2)%3 != 0:
@@ -78,7 +87,7 @@ class steganographic_decoder():
             else:
                 pixels_needed = int(int(header,2)/3)
             positions = positions[:pixels_needed]
-        print("passed")
+        
         ctr = 0
         bit_text = ""
         for i in range(int(header,2)//self.png.size + 1):
@@ -92,9 +101,3 @@ class steganographic_decoder():
         self.bits_into_plaintext(text)
         self.bin_to_hex_hash(hash)
         
-
-
-steg_dec = steganographic_decoder("heslo","decoding_test.png")
-steg_dec.decode()
-print(steg_dec.get_plaintext())
-print(steg_dec.verify_integrity())
