@@ -13,7 +13,7 @@ class stegLogic():
         self.identityFlag = False
 
     def open_image(self,file_path):
-        # Načtení obrázku pomocí OpenCV
+        # Načtení obrázku pomocí OpenCV a následná konverze do formátu který podporuje PyQt6
         self.png = cv.imread(file_path,cv.IMREAD_COLOR_BGR)
         height, width, channel = self.png.shape
         qformat = QImage.Format.Format_BGR888

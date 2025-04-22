@@ -110,4 +110,3 @@ class steganographic_encoder():
                     current_val = self.png[row, col, channel]
                     self.png[row, col, channel] = self.encode_bit(int(current_val), bit, i)
             return self.png
-        

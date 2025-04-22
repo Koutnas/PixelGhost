@@ -35,14 +35,6 @@ class steganographic_decoder():
         else:
             return "0"
     
-    def verify_integrity(self): # Ověřuje integritu zprávy porovnáním hashů
-        text_hash = sha256(self.decoded_text.encode("UTF-8")).hexdigest()
-        return self.extracted_hash == text_hash
-    
-    def verify_identity(self): # Ověřuje identitu pomocí HMAC
-        expected_sig = hmac.new(key=self.password.encode('utf-8'),msg=self.decoded_text.encode('utf-8'),digestmod='sha256').hexdigest()
-        return self.extracted_identity_sig == expected_sig
-    
     def get_plaintext(self):
         return self.decoded_text
     
