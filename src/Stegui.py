@@ -1,10 +1,8 @@
-from PyQt6.QtWidgets import QWidget, QPushButton, QLabel,QApplication,QHBoxLayout,QGridLayout, QLineEdit,QTextEdit,QCheckBox,QSizePolicy,QMessageBox
+from PyQt6.QtWidgets import QWidget, QPushButton, QLabel,QHBoxLayout,QGridLayout, QLineEdit,QTextEdit,QCheckBox,QSizePolicy,QMessageBox
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
-from PyQt6.QtGui import QImage, QPixmap
 from Stegui_logic import stegLogic # vlastní logika
 import numpy as np
-import sys
 
 class MainUI(QWidget):
     def __init__(self):
@@ -13,7 +11,7 @@ class MainUI(QWidget):
         self.logic = stegLogic()    # Vytvoření instance logiky
 
     def init_ui(self):
-        self.setWindowTitle("Steganography") # Titulek okna
+        self.setWindowTitle("PixelGhost") # Titulek okna
         self.setGeometry(250, 250, 800, 500) # Rozměry okna
         self.switch = True                   # True = encode režim
         parentLayout = QGridLayout()         # Hlavní rozložení
@@ -231,8 +229,3 @@ class MainUI(QWidget):
         pixmap = self.logic.update_img()
         self.image_label.setPixmap(pixmap)
         super().resizeEvent(event)
-
-app = QApplication(sys.argv)
-window = MainUI()
-window.show()
-sys.exit(app.exec())
